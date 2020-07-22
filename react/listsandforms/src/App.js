@@ -2,6 +2,7 @@ import React from 'react';
 import logo from './logo.svg';
 import './App.css';
 import ShoppingForm from './components/ShoppingForm';
+import ShoppingList from './components/ShoppingList';
 
 class App extends React.Component {
 	
@@ -30,6 +31,8 @@ class App extends React.Component {
 		return (
 			<div className="App">
 				<ShoppingForm addToList={this.addToList}/>
+				<hr/>
+				<ShoppingList shoppinglist={this.state.shoppinglist}/>
 			</div>
 		);
 	}
