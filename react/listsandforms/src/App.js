@@ -35,13 +35,29 @@ class App extends React.Component {
 		})
 	}
 	
+	editItem = (item) => {
+		console.log(item);
+		let tempList = [];
+		for(let i=0;i<this.state.shoppinglist.length;i++) {
+			if(this.state.shoppinglist[i].id !== item.id) {
+				tempList.push(this.state.shoppinglist[i])
+			} else {
+				tempList.push(item)
+			}
+		}
+		this.setState({
+			shoppinglist:tempList
+		})
+	}
+	
 	render() {
 		return (
 			<div className="App">
 				<ShoppingForm addToList={this.addToList}/>
 				<hr/>
 				<ShoppingList shoppinglist={this.state.shoppinglist}
-							removeFromList={this.removeFromList}/>
+							removeFromList={this.removeFromList}
+							editItem={this.editItem}/>
 			</div>
 		);
 	}
