@@ -10,15 +10,15 @@ class App extends React.Component {
 	  super(props);
 	  this.state = {
 		  message:"No message yet"
-	  }
-	  
-
+	  }	 
   }
-  	  sendMessage = (message) => {
-		  this.setState({
-			  message:message
-		  })
-	  }
+  
+  sendMessage = (message) => {
+	  this.setState({
+		  message:message
+	  })
+  }
+  
   render() {
 	  return (
 		<div className="App">
