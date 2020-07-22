@@ -27,12 +27,21 @@ class App extends React.Component {
 		console.log(this.state);
 	}
 	
+	removeFromList = (id) => {
+		let tempid = parseInt(id,10);
+		let templist = this.state.shoppinglist.filter(item => item.id !== tempid)
+		this.setState({
+			shoppinglist:templist
+		})
+	}
+	
 	render() {
 		return (
 			<div className="App">
 				<ShoppingForm addToList={this.addToList}/>
 				<hr/>
-				<ShoppingList shoppinglist={this.state.shoppinglist}/>
+				<ShoppingList shoppinglist={this.state.shoppinglist}
+							removeFromList={this.removeFromList}/>
 			</div>
 		);
 	}
