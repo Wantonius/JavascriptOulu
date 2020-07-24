@@ -36,7 +36,7 @@ isUserLogged = (req,res,next) => {
 				loggedSessions.splice(i,1);
 				return res.status(403).json({message:"forbidden"})
 			}
-			loggedSessions[i].ttl = date;
+			loggedSessions[i].ttl = date+ttl;
 			req.session = {};
 			req.session.user = loggedSessions[i].user;
 			return next();
@@ -76,7 +76,48 @@ app.post("/register",function(req,res) {
 	})
 })
 
-app.use("/api",apiRoutes);
+app.post("/login",function(req,res) {
+	if(!req.body) {
+		return res.status(422).json({message:"Please provide proper credentials"});
+	}
+	if(!req.body.username || !req.body.password) {
+		return res.status(422).json({message:"Please provide proper credentials"});
+	}
+	if(req.body.password.length < 8 || req.body.username.length < 4) {
+		return res.status(422).json({message:"Please provide proper credentials"});
+	}
+	let user = {
+		username:req.body.username,
+		password:req.body.password
+	}
+	let found = false;
+	for(let i=0;i<registeredUsers.length;i++) {
+		if(user.username === registeredUsers[i].username) {
+			found = true;
+			bcrypt.compare(req.body.password,registeredUsers[i].password, function(err,success) {
+				if(err) {
+					return res.status(403).json({message:"Username or password not correct"})
+				}
+				if(!success) {
+					return res.status(403).json({message:"Username or password not correct"})
+				}
+				let token = tokenizer();
+				let temp = Date.now();
+				loggedSessions.push({
+					user:user.username,
+					token:token,
+					ttl:temp+ttl
+				})
+				return res.status(200).json({token:token})
+			})
+		}
+	}
+	if(!found) {
+		return res.status(403).json({message:"Username or password not correct"})
+	}
+})
+
+app.use("/api",isUserLogged,apiRoutes);
 
 app.listen(3001);
 
