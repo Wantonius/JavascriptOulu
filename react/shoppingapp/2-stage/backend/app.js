@@ -117,6 +117,20 @@ app.post("/login",function(req,res) {
 	}
 })
 
+app.post("/logout",function(req,res) {
+	let token = req.headers.token;
+	if(!token) {
+		return res.status(404).json({message:"not found"})
+	}
+	for(let i=0;i<loggedSessions.length;i++) {
+		if(loggedSessions[i].token === token) {
+			loggedSessions.splice(i,1)
+			return res.status(200).json({message:"logged out"})
+		}
+	}
+	return res.status(404).json({message:"not found"})
+})
+
 app.use("/api",isUserLogged,apiRoutes);
 
 app.listen(3001);
