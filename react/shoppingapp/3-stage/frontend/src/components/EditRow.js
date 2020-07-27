@@ -20,7 +20,7 @@ export default class EditRow extends React.Component {
 	
 	editItem = (event) => {
 		let item = {
-			id:this.props.item.id,
+			_id:this.props.item._id,
 			type:this.state.type,
 			count:this.state.count,
 			price:this.state.price

@@ -15,8 +15,6 @@ mongoose.connect("mongodb://localhost/javascriptoulu").then(
 	(error) => console.log("Failed to connect to MongoDB. Reason:"+error)
 );
 
-const registeredUsers = [];
-const loggedSessions = [];
 const ttl = 1000*60*60
 
 //Middlewares
@@ -38,20 +36,29 @@ isUserLogged = (req,res,next) => {
 	if(!token) {
 		return res.status(403).json({message:"forbidden"})
 	}
-	for(let i=0;i<loggedSessions.length;i++) {
-		if(token === loggedSessions[i].token) {
-			let date = Date.now();
-			if(date > loggedSessions[i].ttl) {
-				loggedSessions.splice(i,1);
-				return res.status(403).json({message:"forbidden"})
-			}
-			loggedSessions[i].ttl = date+ttl;
-			req.session = {};
-			req.session.user = loggedSessions[i].user;
-			return next();
+	SessionModel.findOne({"token":token},function(err,session) {
+		if(err) {
+			return res.status(403).json({message:"forbidden"})
 		}
-	}
-	return res.status(403).json({message:"forbidden"})
+		if(!session) {
+			return res.status(403).json({message:"forbidden"})
+		}
+		let now = Date.now();
+		if(now > session.ttl) {
+			SessionModel.deleteOne({"_id":session._id},function(err) {
+				if(err) {
+					console.log("Failed to remove session:"+err)
+				}
+				return res.status(403).json({message:"forbidden"})
+			})	
+		}
+		req.session = {}
+		req.session.user = session.user;
+		session.ttl = now+ttl;
+		session.save(function(err) {
+			return next();
+		})
+	})
 }
 
 //LOGIN API
@@ -129,7 +136,7 @@ app.post("/login",function(req,res) {
 				return res.status(200).json({token:token})
 			})			
 		})
-	)}
+	})
 	
 })
 
@@ -138,13 +145,22 @@ app.post("/logout",function(req,res) {
 	if(!token) {
 		return res.status(404).json({message:"not found"})
 	}
-	for(let i=0;i<loggedSessions.length;i++) {
-		if(loggedSessions[i].token === token) {
-			loggedSessions.splice(i,1)
-			return res.status(200).json({message:"logged out"})
+	SessionModel.findOne({"token":token},function(err,session) {
+		if(err) {
+			console.log("Error when finding session:"+err);
+			return res.status(404).json({message:"not found"})
 		}
-	}
-	return res.status(404).json({message:"not found"})
+		if(!session) {
+			console.log("Session does not exist");
+			return res.status(404).json({message:"not found"})			
+		}
+		SessionModel.deleteOne({"_id":session._id},function(err) {
+			if(err) {
+				console.log("Failed to remove session:"+err)
+			}
+			return res.status(200).json({message:"success"})
+		})
+	})
 })
 
 app.use("/api",isUserLogged,apiRoutes);
