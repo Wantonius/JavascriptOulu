@@ -96,35 +96,41 @@ app.post("/login",function(req,res) {
 	if(req.body.password.length < 8 || req.body.username.length < 4) {
 		return res.status(422).json({message:"Please provide proper credentials"});
 	}
-	let user = {
-		username:req.body.username,
-		password:req.body.password
-	}
-	let found = false;
-	for(let i=0;i<registeredUsers.length;i++) {
-		if(user.username === registeredUsers[i].username) {
-			found = true;
-			bcrypt.compare(req.body.password,registeredUsers[i].password, function(err,success) {
-				if(err) {
-					return res.status(403).json({message:"Username or password not correct"})
-				}
-				if(!success) {
-					return res.status(403).json({message:"Username or password not correct"})
-				}
-				let token = tokenizer();
-				let temp = Date.now();
-				loggedSessions.push({
-					user:user.username,
-					token:token,
-					ttl:temp+ttl
-				})
-				return res.status(200).json({token:token})
-			})
+	UserModel.findOne({"username":req.body.username}, function(err,user) {
+		if(err) {
+			console.log("Error in finding user:"+error);
+			return res.status(403).json({message:"Username or password not correct"})
 		}
-	}
-	if(!found) {
-		return res.status(403).json({message:"Username or password not correct"})
-	}
+		if(!user) {
+			return res.status(403).json({message:"Username or password not correct"})
+		}
+		bcrypt.compare(req.body.password,user.password, function(err,success) {
+			if(err) {
+				return res.status(403).json({message:"Username or password not correct"})
+			}
+			if(!success) {
+				return res.status(403).json({message:"Username or password not correct"})
+			}
+			let token = tokenizer();
+			let temp = Date.now();
+			let session = new SessionModel({
+				user:user.username,
+				token:token,
+				ttl:temp+ttl
+			})
+			session.save(function(err,session) {
+				if(err) {
+					return res.status(403).json({message:"Username or password not correct"})				
+				}
+				if(!session) {
+					return res.status(403).json({message:"Username or password not correct"})
+
+				}
+				return res.status(200).json({token:token})
+			})			
+		})
+	)}
+	
 })
 
 app.post("/logout",function(req,res) {
