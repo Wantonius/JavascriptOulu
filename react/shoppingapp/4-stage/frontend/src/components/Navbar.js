@@ -2,11 +2,12 @@ import React from 'react';
 import {Link} from 'react-router-dom';
 import {List,Header} from 'semantic-ui-react';
 import {connect} from 'react-redux';
+import {logout} from '../actions/loginActions';
 
 class Navbar extends React.Component {
 	
 	logout = () => {
-		this.props.logout();
+		this.props.dispatch(logout(this.props.token));
 	}
 	
 	

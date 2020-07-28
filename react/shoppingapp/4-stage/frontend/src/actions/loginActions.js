@@ -35,6 +35,55 @@ export const register = (user) => {
 	}
 }
 
+
+export const login = (user) => {
+	return dispatch => {	
+		let request = {
+			method:"POST",
+			mode:"cors",
+			headers:{"Content-type":"application/json"},
+			body:JSON.stringify(user)
+		}
+		dispatch(fetchLoading());
+		fetch("/login",request).then(response => {
+			dispatch(loadingDone());
+			if(response.ok) {
+				response.json().then(data => {
+					dispatch(loginSuccess(data.token));
+				}).catch(error => {
+					dispatch(loginFailed("Failed to parse JSON:"+error));
+				})
+			} else {
+				dispatch(loginFailed("Login Failed. Server responded with status:"+response.status));
+			}
+		}).catch(error => {
+			dispatch(loadingDone());
+			dispatch(loginFailed("Server responded with an error:"+error));
+		})
+	}
+}	
+
+export const logout = (token) => {
+	return dispatch => {
+		let request = {
+			method:"POST",
+			mode:"cors",
+			headers:{
+				"Content-type":"application/json",
+				"token":token
+			}
+		}
+		dispatch(fetchLoading());
+		fetch("/logout",request).then(response => {
+			dispatch(loadingDone());
+			dispatch(logoutSuccess());
+		}).catch(error => {
+			dispatch(loadingDone());
+			dispatch(logoutFailed("Logging out but server responded with an error:"+error));
+		})
+	}	
+}
+
 //ACTION CREATORS
 
 export const fetchLoading = () => {
