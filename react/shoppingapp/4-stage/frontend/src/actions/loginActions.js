@@ -1,4 +1,6 @@
+import {removeState,getList} from './shoppingActions';
 //ACTION CONSTANTS
+
 
 export const LOGIN_SUCCESS = "LOGIN_SUCCESS"
 export const LOGIN_FAILED = "LOGIN_FAILED"
@@ -50,6 +52,7 @@ export const login = (user) => {
 			if(response.ok) {
 				response.json().then(data => {
 					dispatch(loginSuccess(data.token));
+					dispatch(getList(data.token));
 				}).catch(error => {
 					dispatch(loginFailed("Failed to parse JSON:"+error));
 				})
@@ -77,9 +80,11 @@ export const logout = (token) => {
 		fetch("/logout",request).then(response => {
 			dispatch(loadingDone());
 			dispatch(logoutSuccess());
+			dispatch(removeState());
 		}).catch(error => {
 			dispatch(loadingDone());
 			dispatch(logoutFailed("Logging out but server responded with an error:"+error));
+			dispatch(removeState());
 		})
 	}	
 }
