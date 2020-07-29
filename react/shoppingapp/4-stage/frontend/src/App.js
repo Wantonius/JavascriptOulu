@@ -25,23 +25,7 @@ class App extends React.Component {
 	
 
 	
-	removeFromList = (id) => {
-		let request = {
-			method:"DELETE",
-			mode:"cors",
-			headers:{"Content-type":"application/json",
-					token:this.props.token}
-		}
-		fetch("/api/shopping/"+id,request).then(response => {
-			if(response.ok) {
-				this.getList();
-			} else {
-				console.log("Server responded with status:"+response.status);
-			}
-		}).catch(error => {
-			console.log("Server responded with an error:"+error);
-		})
-	}
+
 	
 	editItem = (item) => {
 		let request = {

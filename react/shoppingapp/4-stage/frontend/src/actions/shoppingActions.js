@@ -63,11 +63,70 @@ export const addToList = (token,shoppingitem) => {
 				dispatch(addToListSuccess());
 				dispatch(getList(token));
 			} else {
+				if(response.status === 403) {
+					dispatch(removeState());
+					dispatch(logoutSuccess());
+				}
 				dispatch(addToListFailed("Server responded with status:"+response.status));
 			}
 		}).catch(error => {
 			dispatch(loadingDone());
 			dispatch(addToListFailed("Server responded with an error:"+error));
+		})
+	}
+}
+
+export const removeFromList = (token,id) => {
+	return dispatch => {
+		let request = {
+			method:"DELETE",
+			mode:"cors",
+			headers:{"Content-type":"application/json",
+					token:token}
+		}
+		dispatch(fetchLoading())
+		fetch("/api/shopping/"+id,request).then(response => {
+			if(response.ok) {
+				dispatch(removeFromListSuccess());
+				dispatch(getList(token));
+			} else {
+				if(response.status === 403) {
+					dispatch(removeState());
+					dispatch(logoutSuccess());
+				}
+				dispatch(removeFromListFailed("Remove failed. Server responded with status:"+response.status));
+			}
+		}).catch(error => {
+			dispatch(loadingDone());
+			dispatch(removeFromListFailed("Server responded with an error:"+error));
+		})
+	}
+}
+
+export const editItem = (token,item) => {
+	return dispatch => {
+		let request = {
+			method:"PUT",
+			mode:"cors",
+			headers:{"Content-type":"application/json",
+					token:token},
+			body:JSON.stringify(item)
+		}
+		dispatch(fetchLoading());
+		fetch("/api/shopping/"+item._id,request).then(response => {
+			dispatch(loadingDone());
+			if(response.ok) {
+				dispatch(editItemSuccess());
+				dispatch(getList(token));
+			} else {
+				if(response.status === 403) {
+					dispatch(removeState());
+					dispatch(logoutSuccess());
+				}				
+				dispatch(editItemFailed("Edit failed. Server responded with status:"+response.status));
+		}}).catch(error => {
+			dispatch(loadingDone());
+			dispatch(editItemFailed("Server responded with an error:"+error));
 		})
 	}
 }
