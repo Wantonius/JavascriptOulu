@@ -16,34 +16,6 @@ class App extends React.Component {
 			this.props.dispatch(getList(this.props.token));
 		}
 	}
-
-
-	
-
-	
-
-	
-
-	
-
-	
-	editItem = (item) => {
-		let request = {
-			method:"PUT",
-			mode:"cors",
-			headers:{"Content-type":"application/json",
-					token:this.props.token},
-			body:JSON.stringify(item)
-		}
-		fetch("/api/shopping/"+item._id,request).then(response => {
-			if(response.ok) {
-				this.getList();
-			} else {
-				console.log("Server responded with status:"+response.status);
-		}}).catch(error => {
-			console.log("Server responded with an error:"+error);
-		})
-	}
 	
 	render() {
 		return (
