@@ -55,8 +55,7 @@ function App() {
 					} else {
 						getList();
 					}
-				}
-				else {
+				} else {
 					dispatch({type:"LOADING_DONE"})
 					console.log("Server responded with status:",response.status)
 					}		
@@ -68,22 +67,50 @@ function App() {
 		fetchData();
 	},[urlRequest])
 	
+	useEffect(() => getList(),[]);
+	
+	const getList = () => {
+		setUrlRequest({
+			url:"/api/shopping",
+			request:{
+				method:"GET",
+				mode:"cors",
+				headers:{"Content-type":"application/json"}
+			}
+		})
+	}
+	
 	const addToList = (item) => {
-		dispatch({
-			type:"ADD_TO_LIST",
-			item:item
+		setUrlRequest({
+			url:"/api/shopping",
+			request:{
+				method:"POST",
+				mode:"cors",
+				headers:{"Content-type":"application/json"},
+				body:JSON.stringify(item)
+			}
 		})
 	}
 	
 	const removeFromList = (id) => {
-		dispatch({
-			type:"REMOVE_FROM_LIST",
-			id:id
+		setUrlRequest({
+			url:"/api/shopping/"+id,
+			request:{
+				method:"DELETE",
+				mode:"cors",
+				headers:{"Content-type":"application/json"}
+			}
 		})
+	}
+	
+	let header = <Header>Shopping App</Header>
+	if(state.loading) {
+		header = <Header>Shopping App ...Loading</Header>
 	}
 	
     return (
 		<div className="App">
+		{header}
 			<ShoppingForm addToList={addToList}/>
 			<hr/>
 			<ShoppingList list={state.list} removeFromList={removeFromList}/>
