@@ -55,14 +55,17 @@ function App() {
 					} else {
 						getList();
 					}
+				}
 				else {
 					dispatch({type:"LOADING_DONE"})
 					console.log("Server responded with status:",response.status)
 					}		
-				}
 			} catch(error) {
 				console.log(error)
-		}		
+			}		
+		}
+		
+		fetchData();
 	},[urlRequest])
 	
 	const addToList = (item) => {
